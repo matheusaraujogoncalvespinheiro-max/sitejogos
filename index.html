@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>GameDownloads - Baixe seus jogos</title>
+<link rel="stylesheet" href="style.css" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<header>
+  <div class="container header-inner">
+    <a href="#" class="logo" id="logo-btn">🎮 Game<span>Downloads</span></a>
+    <div class="header-search-wrap" id="search-wrap">
+      <input type="search" id="busca" placeholder="Buscar jogo... 🔍" />
+    </div>
+  </div>
+</header>
+
+<!-- VISÃO DO CATÁLOGO PRINCIPAL -->
+<div id="view-catalogo">
+  <section class="hero">
+    <div class="container">
+      <h1>Baixe seus jogos favoritos</h1>
+      <p>Escolha um jogo para ver a <strong>história completa</strong>, imagens e link direto de download.</p>
+      <div class="filtros" id="filtros">
+        <button class="ativo" data-cat="Todas">Todas</button>
+      </div>
+    </div>
+  </section>
+
+  <main class="container">
+    <div id="grade" class="grade"></div>
+    <p id="vazio" class="vazio" hidden>Nenhum jogo encontrado.</p>
+  </main>
+</div>
+
+<!-- VISÃO DE DETALHES DO JOGO -->
+<div id="view-detalhes" hidden>
+  <div class="container detalhes-container">
+    <button id="btn-voltar" class="btn-voltar">← Voltar aos Jogos</button>
+
+    <div class="detalhes-grid">
+      <!-- Mídia e Galeria -->
+      <div class="detalhes-midia">
+        <div class="imagem-destaque-wrap">
+          <a id="link-img-principal" href="#" target="_blank" rel="noopener" title="Clique para abrir a imagem original em alta resolução">
+            <img id="img-principal" src="" alt="Imagem do Jogo" />
+            <span class="img-link-badge">🔗 Abrir imagem original (Link)</span>
+          </a>
+        </div>
+        <div class="galeria-thumbs" id="galeria-thumbs"></div>
+      </div>
+
+      <!-- Informações principais e Download -->
+      <div class="detalhes-info">
+        <div class="badget-row" id="detalhes-badges"></div>
+        <h1 id="detalhes-titulo" class="detalhes-titulo"></h1>
+        <p id="detalhes-resumo" class="detalhes-resumo"></p>
+
+        <div class="meta-box">
+          <div class="meta-item">
+            <span class="meta-label">Categoria</span>
+            <span class="meta-val" id="meta-cat"></span>
+          </div>
+          <div class="meta-item">
+            <span class="meta-label">Tamanho</span>
+            <span class="meta-val" id="meta-tamanho"></span>
+          </div>
+          <div class="meta-item">
+            <span class="meta-label">Desenvolvedor</span>
+            <span class="meta-val" id="meta-dev"></span>
+          </div>
+          <div class="meta-item">
+            <span class="meta-label">Ano</span>
+            <span class="meta-val" id="meta-ano"></span>
+          </div>
+        </div>
+
+        <a id="btn-download" class="btn btn-download-grande" href="#" target="_blank" rel="noopener">
+          ⬇ Baixar Jogo Agora
+        </a>
+      </div>
+    </div>
+
+    <!-- História e Enredo do Jogo -->
+    <div class="historia-section">
+      <h2>📖 História & Enredo do Jogo</h2>
+      <div id="detalhes-historia" class="historia-conteudo"></div>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <p>© 2026 GameDownloads — Todos os direitos reservados.</p>
+</footer>
+
+<script src="script.js"></script>
+</body>
+</html>
