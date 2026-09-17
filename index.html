@@ -3,29 +3,82 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>GameDownloads - Baixe seus jogos</title>
+<title>MR PLOCK — Arsenal Secreto</title>
+<link rel="icon" type="image/png" href="img/logo.png" />
 <link rel="stylesheet" href="style.css" />
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Orbitron:wght@700;800;900&family=Cinzel:wght@700&display=swap" rel="stylesheet">
+<!-- Proteção anti-cópia precoce -->
+<script>
+  document.addEventListener('contextmenu', e=>{ const t=e.target; if(!(t.tagName==='INPUT'||t.tagName==='TEXTAREA'||t.isContentEditable)) e.preventDefault(); }, true);
+  document.addEventListener('copy', e=>{ const t=e.target; if(!(t.tagName==='INPUT'||t.tagName==='TEXTAREA'||t.isContentEditable)) e.preventDefault(); }, true);
+</script>
+<!-- Firebase Auth (compat) para verificação real de e-mail -->
+<script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-auth-compat.js"></script>
 </head>
-<body>
+<body oncontextmenu="return false" onselectstart="return false" ondragstart="return false">
+
+<!-- VÍDEO DE FUNDO EM LOOP REVERSO -->
+<video id="bg-video" class="bg-video" autoplay muted playsinline preload="auto" aria-hidden="true">
+  <source src="video/bg-loop.mp4" type="video/mp4">
+</video>
+<div class="bg-video-overlay"></div>
+<div id="bg-reverse-indicator" class="bg-reverse-indicator" hidden>◀ REVERSO • LOOP INFINITO</div>
+
+<!-- TELA DE LOGIN REMOVIDA -->
 
 <header>
+  <div class="header-bg-glow"></div>
   <div class="container header-inner">
-    <a href="#" class="logo" id="logo-btn">🎮 Game<span>Downloads</span></a>
+    <a href="#" class="logo" id="logo-btn" title="Pressione e segure por 8 segundos... se tiver coragem">
+      <img src="img/logo.png" alt="MR PLOCK Logo" class="logo-img" onerror="this.style.display='none'">
+      <span class="logo-icon">👑</span>
+      <span class="logo-text">MR<span> PLOCK</span></span>
+      <span class="logo-subtitle">ARSENAL</span>
+    </a>
+    <nav class="header-nav" id="header-nav">
+      <button class="nav-btn active" data-view="home" id="nav-home">🏠 Home</button>
+      <button class="nav-btn" data-view="biblioteca" id="nav-biblioteca">📚 Biblioteca <span class="nav-badge" id="biblioteca-count">0</span></button>
+    </nav>
     <div class="header-search-wrap" id="search-wrap">
-      <input type="search" id="busca" placeholder="Buscar jogo... 🔍" />
+      <div class="search-icon">⌕</div>
+      <input type="search" id="busca" placeholder="Buscar no arsenal..." autocomplete="off" />
+    </div>
+    <div class="header-actions">
+      <div class="coins-display" id="coins-display" title="Suas moedas">
+        <span class="coin-icon">🪙</span>
+        <span id="coins-valor">0</span>
+        <span class="coin-label">moedas</span>
+      </div>
+      <button class="header-btn btn-cupom" id="btn-cupom" title="Resgatar cupom">🎟️ Cupom</button>
+      <button class="header-btn btn-loja" id="btn-loja" title="Recarregar moedas (dinheiro real)">💎 Recarregar</button>
+      <div id="user-menu" class="user-menu" hidden>
+        <span class="user-email" id="user-email-display"></span>
+        <button class="header-btn btn-logout" id="btn-logout" title="Sair da conta">Sair</button>
+      </div>
     </div>
   </div>
+  <div class="hold-progress" id="hold-progress"><div class="hold-bar" id="hold-bar"></div></div>
 </header>
+
+<!-- FUNDO TEMÁTICO DINÂMICO -->
+<div id="theme-bg" class="theme-bg"></div>
+<div id="theme-overlay" class="theme-overlay"></div>
 
 <!-- VISÃO DO CATÁLOGO PRINCIPAL -->
 <div id="view-catalogo">
   <section class="hero">
-    <div class="container">
-      <h1>Baixe seus jogos favoritos</h1>
-      <p>Escolha um jogo para ver a <strong>história completa</strong>, imagens e link direto de download.</p>
+    <div class="hero-orbs">
+      <div class="orb orb1"></div>
+      <div class="orb orb2"></div>
+      <div class="orb orb3"></div>
+    </div>
+    <div class="container hero-content">
+      <div class="hero-badge">✦ ACERVO CURADO POR MR PLOCK ✦</div>
+      <h1><span class="hero-gradient">Baixe os Lendários</span><br>que marcaram gerações</h1>
+      <p>Spore, FNAF e clássicos esquecidos — <strong>história completa</strong>, galeria em HD e download direto. Clique no card e mergulhe no tema do jogo.</p>
       <div class="filtros" id="filtros">
         <button class="ativo" data-cat="Todas">Todas</button>
       </div>
@@ -34,23 +87,44 @@
 
   <main class="container">
     <div id="grade" class="grade"></div>
-    <p id="vazio" class="vazio" hidden>Nenhum jogo encontrado.</p>
+    <p id="vazio" class="vazio" hidden>Nenhum jogo encontrado no arsenal.</p>
+  </main>
+</div>
+
+<!-- VISÃO BIBLIOTECA (JOGOS COMPRADOS) -->
+<div id="view-biblioteca" hidden>
+  <section class="hero hero-biblioteca">
+    <div class="hero-orbs">
+      <div class="orb orb1"></div>
+      <div class="orb orb2"></div>
+    </div>
+    <div class="container hero-content">
+      <div class="hero-badge">📚 SUA BIBLIOTECA</div>
+      <h1><span class="hero-gradient">Jogos Desbloqueados</span></h1>
+      <p>Todos os jogos que você comprou com moedas. Baixe novamente quando quiser — já são seus para sempre.</p>
+      <div id="biblioteca-stats" class="biblioteca-stats"></div>
+    </div>
+  </section>
+  <main class="container">
+    <div id="grade-biblioteca" class="grade"></div>
+    <p id="vazio-biblioteca" class="vazio" hidden>Sua biblioteca está vazia. Vá para a <strong>Home</strong> e compre jogos com moedas!</p>
   </main>
 </div>
 
 <!-- VISÃO DE DETALHES DO JOGO -->
 <div id="view-detalhes" hidden>
   <div class="container detalhes-container">
-    <button id="btn-voltar" class="btn-voltar">← Voltar aos Jogos</button>
+    <button id="btn-voltar" class="btn-voltar">← Voltar ao Arsenal</button>
 
     <div class="detalhes-grid">
       <!-- Mídia e Galeria -->
       <div class="detalhes-midia">
         <div class="imagem-destaque-wrap">
-          <a id="link-img-principal" href="#" target="_blank" rel="noopener" title="Clique para abrir a imagem original em alta resolução">
+          <a id="link-img-principal" href="#" target="_blank" rel="noopener" title="Abrir imagem original">
             <img id="img-principal" src="" alt="Imagem do Jogo" />
-            <span class="img-link-badge">🔗 Abrir imagem original (Link)</span>
+            <span class="img-link-badge">⤢ Alta Resolução</span>
           </a>
+          <div class="img-glow"></div>
         </div>
         <div class="galeria-thumbs" id="galeria-thumbs"></div>
       </div>
@@ -81,22 +155,141 @@
         </div>
 
         <a id="btn-download" class="btn btn-download-grande" href="#" target="_blank" rel="noopener">
-          ⬇ Baixar Jogo Agora
+          <span class="btn-icon">⬇</span> <span>Baixar Agora</span> <span class="btn-shine"></span>
         </a>
+        <p class="download-hint">Link direto • Verificado por MR PLOCK</p>
       </div>
     </div>
 
     <!-- História e Enredo do Jogo -->
     <div class="historia-section">
-      <h2>📖 História & Enredo do Jogo</h2>
+      <h2><span class="historia-icon">📖</span> História & Enredo</h2>
       <div id="detalhes-historia" class="historia-conteudo"></div>
+    </div>
+
+    <!-- Trailer / Anúncio Oficial -->
+    <div class="trailer-section" id="trailer-section" hidden>
+      <h2><span class="trailer-icon">🎬</span> Anúncio Oficial • Trailer</h2>
+      <div class="trailer-wrap" id="trailer-wrap">
+        <iframe id="trailer-iframe" src="" title="Trailer do Jogo" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen loading="lazy" referrerpolicy="strict-origin-when-cross-origin"></iframe>
+        <div id="trailer-fallback" class="trailer-fallback" hidden>
+          <img id="trailer-thumb" src="" alt="Capa do Trailer" />
+          <div class="trailer-fallback-overlay">
+            <a id="trailer-fallback-link" href="#" target="_blank" rel="noopener" class="trailer-fallback-btn">▶ Assistir no YouTube</a>
+            <p class="trailer-fallback-hint">Player bloqueado em arquivo local (file://).<br>Clique para abrir o anúncio oficial.</p>
+          </div>
+        </div>
+      </div>
+      <a id="trailer-link" href="#" target="_blank" rel="noopener" class="trailer-link">▶ Abrir no YouTube em nova aba</a>
+      <p class="trailer-hint">Se aparecer "Erro de configuração", abra no YouTube ou rode com um servidor local (ex: VS Code Live Server).</p>
+    </div>
+
+    <!-- COMENTÁRIOS E AVALIAÇÕES -->
+    <div class="comments-section" id="comments-section">
+      <h2><span class="comments-icon">💬</span> Comentários e Avaliações</h2>
+      <div class="comments-summary" id="comments-summary"></div>
+      <div class="comment-form" id="comment-form">
+        <h4>Deixe sua avaliação (1 por pessoa)</h4>
+        <div class="star-input" id="star-input">
+          <button class="star-btn" data-v="1">★</button>
+          <button class="star-btn" data-v="2">★</button>
+          <button class="star-btn" data-v="3">★</button>
+          <button class="star-btn" data-v="4">★</button>
+          <button class="star-btn" data-v="5">★</button>
+          <span class="star-hint" id="star-hint">Toque nas estrelas</span>
+        </div>
+        <input type="text" id="comment-name" placeholder="Seu nome (opcional)" maxlength="30" autocomplete="name">
+        <textarea id="comment-text" placeholder="Escreva seu comentário..." maxlength="300" rows="3"></textarea>
+        <button id="btn-enviar-comentario" class="btn btn-cupom-resgatar">⭐ Enviar avaliação</button>
+        <p id="comment-msg" class="cupom-msg"></p>
+      </div>
+      <div id="comments-list" class="comments-list"></div>
     </div>
   </div>
 </div>
 
 <footer>
-  <p>© 2026 GameDownloads — Todos os direitos reservados.</p>
+  <div class="footer-glow"></div>
+  <p>© 2026 <strong>MR PLOCK</strong> — Arsenal Secreto • Feito para lendas • <span class="footer-easter">segure o 👑 por 8s</span></p>
 </footer>
+
+<!-- MODAL CUPOM -->
+<div id="modal-cupom" class="modal" hidden>
+  <div class="modal-backdrop" id="modal-cupom-backdrop"></div>
+  <div class="modal-box">
+    <button class="modal-close" id="modal-cupom-close">✕</button>
+    <h2>🎟️ Resgatar Cupom</h2>
+    <p class="modal-desc">Digite um código para ganhar moedas. Tente <code>MRPLOCK10</code>, <code>BEMVINDO</code> ou <code>GOLDENFREDDY</code>.</p>
+    <div class="cupom-input-wrap">
+      <input type="text" id="cupom-input" placeholder="Ex: MRPLOCK10" autocomplete="off" />
+      <button id="btn-resgatar-cupom" class="btn btn-cupom-resgatar">Resgatar</button>
+    </div>
+    <p id="cupom-msg" class="cupom-msg"></p>
+    <div class="cupom-lista">
+      <h4>💡 Dicas de cupons (demonstração):</h4>
+      <ul>
+        <li><code>MRPLOCK10</code> → 100 moedas</li>
+        <li><code>BEMVINDO50</code> → 50 moedas</li>
+        <li><code>WORLDSECRET</code> → 200 moedas</li>
+        <li><code>NFSNITRO</code> → 150 moedas</li>
+        <li><code>GOLDENFREDDY</code> → 500 moedas (easter egg)</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL LOJA - RECARGA COM DINHEIRO REAL -->
+<div id="modal-loja" class="modal" hidden>
+  <div class="modal-backdrop" id="modal-loja-backdrop"></div>
+  <div class="modal-box modal-loja-box">
+    <button class="modal-close" id="modal-loja-close">✕</button>
+    <h2>💎 Recarregar Moedas</h2>
+    <p class="modal-desc">Moedas custam dinheiro real. Escolha um pacote (pagamento simulado para demonstração).</p>
+    <div class="loja-grid" id="loja-grid">
+      <!-- preenchido via JS -->
+    </div>
+    <p class="loja-aviso">⚠️ Demonstração: nenhum pagamento real será cobrado. Ao clicar em "Comprar", as moedas são adicionadas instantaneamente.</p>
+  </div>
+</div>
+
+<!-- MODAL COMPRA JOGO -->
+<div id="modal-compra" class="modal" hidden>
+  <div class="modal-backdrop" id="modal-compra-backdrop"></div>
+  <div class="modal-box modal-compra-box">
+    <button class="modal-close" id="modal-compra-close">✕</button>
+    <h2 id="modal-compra-titulo">🪙 Comprar Jogo</h2>
+    <div id="modal-compra-conteudo"></div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div id="toast-container" class="toast-container"></div>
+
+<!-- ANIMAÇÃO DE COMPRA -->
+<div id="purchase-animation" class="purchase-animation" hidden>
+  <div class="purchase-confetti" id="purchase-confetti"></div>
+  <div class="purchase-card">
+    <div class="purchase-icon">🎉</div>
+    <div class="purchase-check">✓</div>
+    <h3 id="purchase-title">Jogo Desbloqueado!</h3>
+    <p id="purchase-desc">Bem-vindo à sua biblioteca</p>
+    <div class="purchase-coins"><span>🪙</span><span id="purchase-coins-val">-0</span></div>
+    <div class="purchase-shine"></div>
+  </div>
+</div>
+
+<!-- JUMPSCARE OVERLAY - GOLDEN FREDDY -->
+<div id="jumpscare-overlay" class="jumpscare-overlay" hidden>
+  <div class="jumpscare-vignette"></div>
+  <div class="jumpscare-static"></div>
+  <img id="jumpscare-img" src="img/golden_freddy.jpg" alt="GOLDEN FREDDY" />
+  <div class="jumpscare-text">IT'S ME</div>
+  <div class="jumpscare-sub">VOCÊ NÃO DEVERIA TER SEGURADO</div>
+</div>
+<audio id="jumpscare-audio" preload="auto">
+  <source src="audio/jumpscare.wav" type="audio/wav">
+  <source src="audio/jumpscare.mp3" type="audio/mpeg">
+</audio>
 
 <script src="script.js"></script>
 </body>
